@@ -10,14 +10,15 @@ After this project, you should be able to:
 -   Be aware of tools dependencies and the value of reproducing environment
 -   Build static HTML website from Markdown code using Go-Hugo
 
-## Prerequisites
-
-The following elements are required In addition to the previous module (**“Module 0: Linux Fundamentals, Code management with Git, GitHub and the GitFlow pattern”**) prerequisites.
-
 
 ## Lifecycle
 
 A section added for task 2 to describe the different steps.
+
+build
+clean
+post
+help
 
 ### Concepts
 
@@ -42,18 +43,7 @@ You should have a basic knowledge of the following concepts:
     -   Default target and PHONY target
     -   Makefile’s variables and macro syntax
 
-### Tooling
 
-This project needs the following tools / services:
-
--   An HTML5-compliant web browser (Firefox, Chrome, Opera, Safari, Edge, etc.)
--   A free account on  [GitHub](https://intranet.hbtn.io/rltoken/u6680ax-ghu8v-AsFSDbSA "GitHub"), referenced as  `<GitHub Handle>`
--   A shell terminal with  `bash`,  `zsh`  or  `ksh`, including the standard Unix toolset (`ls`,  `cd`, etc.) with:
-    -   GNU Make in version 3.81+
-    -   Git (command line) in version 2+
-    -   [Go Hugo](https://intranet.hbtn.io/rltoken/IBEctMMx9WYT-U-G5oIv-g "Go Hugo")  v0.80+
--   The student needs to be able to spawn up a clean Ubuntu 18.04 system. Therefore  [Docker](https://intranet.hbtn.io/rltoken/4-LomWsN4dV31c-IwVMwgw "Docker")  is recommended with NO prior knowledge.
--   A text editor or IDE (Integrated Development Editor) of your convenience (Visual Code, Notepad++, Vim, Emacs, IntelliJ, etc.)
 
 ## Story
 
