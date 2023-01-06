@@ -10,15 +10,16 @@ After this project, you should be able to:
 -   Be aware of tools dependencies and the value of reproducing environment
 -   Build static HTML website from Markdown code using Go-Hugo
 
+## Prerequisites
+- GoHugo
+- goLang
 
 ## Lifecycle
 
-A section added for task 2 to describe the different steps.
-
-build
-clean
-post
-help
+- build
+- clean
+- post
+- help
 
 ### Concepts
 
