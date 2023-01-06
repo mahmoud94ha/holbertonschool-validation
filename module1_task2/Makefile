@@ -1,8 +1,7 @@
-HUGO=hugo
-RM=rm -rf
+
 
 build: 
-	$(HUGO)
+	HUGO
 
 post:
 	$(HUGO) new posts/$(POST_NAME).md
@@ -10,3 +9,5 @@ post:
 
 clean:
 	$(RM) dist/*
+help: 
+	@grep "^[a-zA-Z\-\_0-9]*:.*##.*" $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
