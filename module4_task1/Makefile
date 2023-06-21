@@ -26,9 +26,9 @@ unit-tests: ## unit tests
 integration-tests: ## integration tests
 	touch coverage-integrations.out
 
+validate: ## validate
+	echo OK
+
 build-docker: ## builds a docker img
 	docker volume create myvolume
 	docker build -t awesome:build -f ./build/Dockerfile .
-
-validate: ## validate
-	echo OK
