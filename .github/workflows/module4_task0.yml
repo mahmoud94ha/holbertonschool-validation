@@ -1,59 +1,57 @@
+---
 name: module4_task0
 on:
+  push:
+    branches:
+      - main
+      - master
   schedule:
     - cron: "0 0 * * *"
   pull_request:
-    types: [opened, reopened]
-  push:
+    types: [opened, reopened, edited, ready_for_review]
 jobs:
-  deploy:
+  module4_task0:
     runs-on: ubuntu-22.04
-    container: golang:1.15.8-buster
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Setup node
-        uses: actions/setup-node@v3
-      - name: Run setup
-        working-directory: module4_task0
-        run: ./setup.sh
-      - name: Install markdown
-        run: npm install -g markdownlint-cli
-      - name: Run makefile commands
-        working-directory: module4_task0
+      - name: Setup
         run: |
-          make help
-          make unit-tests
-          make integration-tests
-          make post POST_NAME=kanyewestlover911 POST_TITLE="find god"
-          make validate
+          cd module4_task0/
+          ./setup.sh
+      - name: build
+        run: |
+          cd module4_task0/
           make build
+      - name: Integration tests
+        run: |
+          cd module4_task0/
           make package
-          make clean
-          rm -fr ./dist
-      - name: Artifact
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: 1.0.1
+          files: |
+            module4_task0/awesome-website.zip
+            module4_task0/DEPLOY.md
+      - name: archive build
+        if: ${{ success()}}
         uses: actions/upload-artifact@v3
         with:
-          name: task0-arti
-          path: module4_task0/
-      - name: Make release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: |
-            module4_task0/DEPLOY.md
-            module4_task0/awesome-website.zip
-      - name: Deploy to Netlify
+          name: upload-package
+          path: module4_task0/awesome-website.zip
+      - name: deploy
         uses: nwtgck/actions-netlify@v1.2
         with:
           publish-dir: './module4_task0/dist'
           production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Deploy from GitHub Actions"
+          deploy-message: 'Deployed'
+          publish-message: 'Published'
           enable-pull-request-comment: true
           enable-commit-comment: true
           overwrites-pull-request-comment: true
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         timeout-minutes: 1
