@@ -1,34 +1,54 @@
-.PHONY: build
+HUGO=hugo
+SHELLCHECK=shellcheck
+export PATH
 
-clean: ## clean
-	rm -r ./dist
+.PHONY: build build-docker build-tools test
 
-build: ## build
-	hugo > /dev/null 2>&1
+build: ## install hugo
+	$(HUGO)
 	touch awesome-api
 
-post: ## new post
-	hugo new posts/${POST_NAME}.md
-	sed -i '/title/c\title: "${POST_TITLE}"' content/posts/${POST_NAME}.md
+build-docker: ## build a docker image
+	docker build -t "awesome:build" ./build --no-cache
 
-help: ## list of commands
-	@sed -ne '/@sed/!s/## //p' ${MAKEFILE_LIST}
+build-tools: ## install the hugo package and tools
+	sudo apt install ./hugo.deb
 
-package: ## zip the dist and api binary
-	zip -r awesome-website.zip . -i dist
+test: ## run the clean target
+	docker run awesome:build sh -c "make clean || echo 'Lint Failed'"
+	docker run awesome:build sh -c "hugo; ls ./dist/*"
 
-lint: ## lints DEPLOY.md file
-	markdownlint --fix DEPLOY.md
+clean: ## rm all files
+	rm -rf ./dist*
 
-unit-tests: ## unit tests
-	touch coverage-units.out
+post: ## add new post
+	$(HUGO) new posts/$(POST_NAME).md
+	sed -i 's/title: .*/title: "$(POST_TITLE)"/' content/posts/$(POST_NAME).md
 
-integration-tests: ## integration tests
+lint: ## check and clean
+	hadolint ./build/Dockerfile
+
+markdownlint: ## run the markdownlint tool
+	markdownlint README.md DEPLOY.md
+
+shellcheck: ## shellcheck tool
+	$(SHELLCHECK) setup.sh >/dev/null 2>&1 || echo "Lint Failed"
+
+integration-tests: ## make a coverage-integrations.out file
 	touch coverage-integrations.out
 
-validate: ## validate
-	echo OK
+unit-tests: ## make a coverage-units.out file
+	touch coverage-units.out
 
-build-docker: ## builds a docker img
-	docker volume create myvolume
-	docker build -t awesome:build -f ./build/Dockerfile .
+validate: ## validate the site
+	pwd
+
+package: ## build
+	make build
+	zip awesome-website.zip dist
+
+docker-tests: ## docker image
+	container-structure-test test --image awesome:build --config ./build/cst.yml
+
+help: ## print help
+	cat Makefile | grep '##' | tr -d '##' | head -n -1
