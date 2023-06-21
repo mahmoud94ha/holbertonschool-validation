@@ -38,16 +38,13 @@ jobs:
          make lint && echo OK || echo OK
       - name: Check Makefile
         run: |
-          docker run --mount type=volume,src=myvolume,target=/app \
-          awesome:build make build
-          docker run --mount type=volume,src=myvolume,target=/app \
-          awesome:build make clean
-          docker run --mount type=volume,src=myvolume,target=/app \
-          awesome:build make lint
-          docker run --mount type=volume,src=myvolume,target=/app \
-          awesome:build make unit-tests
-          docker run --mount type=volume,src=myvolume,target=/app \
-          awesome:build make integration-tests
+          cd module4_task2/
+          make help
+          make unit-tests
+          make integration-tests
+          make build
+          make build-docker
+          make package
           echo ${{github.ref}}
       - name: docker-tests
         run: |
