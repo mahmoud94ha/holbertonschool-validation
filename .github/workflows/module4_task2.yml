@@ -1,0 +1,71 @@
+---
+name: module4_task2
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  pull_request:
+    types: [opened, reopened]
+  push:
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup node
+        uses: actions/setup-node@v3
+      - name: Lint Dockerfile
+        working-directory: module4_task2
+        run: make lint
+      - name: Build Docker image
+        working-directory: module4_task2
+        run: make build-docker
+      - name: Run Docker tests
+        working-directory: module4_task2
+        run: make docker-tests
+      - name: Run commands
+        working-directory: module4_task2
+        run: |
+          docker run --mount type=volume,src=myvolume,target=/app \
+          awesome:build make build
+          docker run --mount type=volume,src=myvolume,target=/app \
+          awesome:build make clean
+          docker run --mount type=volume,src=myvolume,target=/app \
+          awesome:build make lint
+          docker run --mount type=volume,src=myvolume,target=/app \
+          awesome:build make unit-tests
+          docker run --mount type=volume,src=myvolume,target=/app \
+          awesome:build make integration-tests
+      - name: Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: task2-arti
+          path: module4_task2/
+      - name: Make release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            module4_task2/DEPLOY.md
+            module4_task2/awesome-website.zip
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: 1.0.1
+          files: |
+            module4_task2/awesome-website.zip
+            module4_task2/DEPLOY.md
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v1.2
+        with:
+          publish-dir: "./module3_task5/dist"
+          production-branch: main
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy from GitHub Actions"
+          enable-pull-request-comment: true
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_ID }}
+        timeout-minutes: 1
