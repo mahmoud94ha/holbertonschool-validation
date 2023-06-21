@@ -24,7 +24,7 @@ A section added for task 2 to describe the different steps.
 You should have a basic knowledge of the following concepts:
 
 -   Shell terminal basics, using command lines:
-    
+
     -   Navigating in a Unix file-system
     -   Understanding how stdin/stdout redirection and piping
     -   Showing and searching the content of a text files
@@ -32,12 +32,12 @@ You should have a basic knowledge of the following concepts:
     -   Adding command lines to your terminal using the  `apt-get`  package manager and/or with the  `PATH`  variable
     -   Writing and executing a shell script
 -   Git with the command line (and also a graphical interface)
-    
+
     -   Retrieving or creating a repository
     -   Manipulating changes locally with Git’s 3 steps process (workspace, staging, history)
     -   Distributing changes history with remotes repositories
 -   Make/Makefile usage:
-    
+
     -   Executing tasks through make targets
     -   Default target and PHONY target
     -   Makefile’s variables and macro syntax
@@ -51,7 +51,7 @@ This project needs the following tools / services:
 -   A shell terminal with  `bash`,  `zsh`  or  `ksh`, including the standard Unix toolset (`ls`,  `cd`, etc.) with:
     -   GNU Make in version 3.81+
     -   Git (command line) in version 2+
-    -   [Go Hugo](https://intranet.hbtn.io/rltoken/IBEctMMx9WYT-U-G5oIv-g "Go Hugo")  v0.80+
+    -   [Go Hugo](https://gohugo.io "Go Hugo")  v0.80+
 -   The student needs to be able to spawn up a clean Ubuntu 18.04 system. Therefore  [Docker](https://intranet.hbtn.io/rltoken/4-LomWsN4dV31c-IwVMwgw "Docker")  is recommended with NO prior knowledge.
 -   A text editor or IDE (Integrated Development Editor) of your convenience (Visual Code, Notepad++, Vim, Emacs, IntelliJ, etc.)
 
