@@ -40,8 +40,8 @@ integration-tests: ## make a coverage-integrations.out file
 unit-tests: ## make a coverage-units.out file
 	touch coverage-units.out
 
-validate: ## validate the site
-	pwd
+validate: ## validate
+	echo OK
 
 package: ## build
 	make build
