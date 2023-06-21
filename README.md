@@ -47,7 +47,7 @@ You should have a basic knowledge of the following concepts:
 This project needs the following tools / services:
 
 -   An HTML5-compliant web browser (Firefox, Chrome, Opera, Safari, Edge, etc.)
--   A free account on  [GitHub](https://intranet.hbtn.io/rltoken/u6680ax-ghu8v-AsFSDbSA "GitHub"), referenced as  `<GitHub Handle>`
+-   A free account on  [GitHub](https://github.com "GitHub"), referenced as  `<GitHub Handle>`
 -   A shell terminal with  `bash`,  `zsh`  or  `ksh`, including the standard Unix toolset (`ls`,  `cd`, etc.) with:
     -   GNU Make in version 3.81+
     -   Git (command line) in version 2+
