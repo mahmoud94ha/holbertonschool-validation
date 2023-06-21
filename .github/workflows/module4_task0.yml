@@ -7,7 +7,7 @@ on:
   push:
 jobs:
   deploy:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     container: golang:1.15.8-buster
     steps:
       - name: Checkout
