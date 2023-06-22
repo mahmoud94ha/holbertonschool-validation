@@ -1,42 +1,28 @@
 ---
 name: module4_task3
-on:
+"on":
   push:
     branches:
       - main
+    tags:
+      - "1.0.1"
   schedule:
     - cron: '0 0 * * *'
   pull_request:
     types: [opened, reopened, synchronize]
 
-permissions: read-all
-
 jobs:
   builds:
     permissions: write-all
-    name: Testing Docker Images
+    defaults:
+      run:
+        working-directory: ./${{ github.workflow }}
     runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - name: install tools
-        run: |
-          cd module4_task3
-          sudo ./setup.sh
-      - name: Hugo
-        run: |
-          cd module4_task3
-          make build-tools
-      - name: Markdownlint
-        run: npm install -g markdownlint-cli
-      - name: lint
-        run: |
-         cd module4_task3/
-         make lint && echo OK || echo OK
-      - name: Check Makefile
+
+      - name: test Makefile
         run: |
           curl -sSfL -o container-structure-test \
           https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64
@@ -52,33 +38,45 @@ jobs:
           make integration-tests
           make package
           make docker-tests
-      - name: docker-tests
-        run: |
-         cd module4_task3/
-         make docker-tests && echo OK || echo OK
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: 1.0.1
-          files: |
-            module4_task3/awesome-website.zip
-            module4_task3/DEPLOY.md
-      - name: archive build
+
+      - name: archieve ZIP file artifact only if all tests sucess
         if: ${{ success()}}
         uses: actions/upload-artifact@v3
         with:
-          name: upload-package
-          path: module4_task3/awesome-website.zip
-      - name: deploy
-        uses: nwtgck/actions-netlify@v1.2
+          name: Saving the zip file
+          path: |
+            ${{ github.workflow }}/awesome-website.zip
+
+
+      - name: release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/1.0.1')
         with:
-          publish-dir: './module4_task3/dist'
+
+          files: |
+            ${{ github.workflow }}/awesome-website.zip
+            ${{ github.workflow }}/DEPLOY.md
+          body: |
+            ## What is in the archive and how to unarchive it?
+            ## What are the commands to start and stop the application?
+            ## How to customize where the application logs are written?
+            ## How to “quickly” verify that the application is running?
+            ## Create a release with the archive triggered by a tag
+      - run: gh release create v1.0.1 --title "v1.0.1"
+            --notes DEPLOY.md 2>/dev/null || echo "OK"
+
+      - name: Deploy in Netlify
+        if: |
+          github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+        uses: nwtgck/actions-netlify@v2.0
+        with:
+          publish-dir: './${{ github.workflow }}/dist'
           production-branch: main
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: 'Published'
           enable-pull-request-comment: true
           enable-commit-comment: true
           overwrites-pull-request-comment: true
+          deploy-message: 'Deployed'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
