@@ -1,3 +1,4 @@
+TARGET=awesome-api
 IMAGE_TAG=$(shell git tag | tail -n 1)
 ifeq ($(strip $(IMAGE_TAG)),)
 IMAGE_TAG=$(shell git rev-parse --abbrev-ref HEAD)
@@ -30,6 +31,9 @@ post: ## add new post
 	$(HUGO) new posts/$(POST_NAME).md
 	sed -i 's/title: .*/title: "$(POST_TITLE)"/' content/posts/$(POST_NAME).md
 
+stop:	## Stop the application.
+	@pkill $(TARGET)
+
 lint: ## Lint Dockerfile
 	docker run --rm -v $(PWD):/workdir -i hadolint/hadolint:v2.6.0 hadolint --config /workdir/cst.yml --no-fail /workdir/Dockerfile
 
@@ -57,5 +61,5 @@ package:	## Produce awesome-website.zip containing awesome-api and dist director
 docker-tests:   ## Test docker image awesome:build
 	docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -w /app awesome:build container-structure-test test --image awesome:build --config cst.yml
 
-help: ## print help
-	cat Makefile | grep '##' | tr -d '##' | head -n -1
+help: # help usage.
+	@sed -ne '/@sed/!s/## //p' $(MAKEFILE_LIST)
