@@ -25,8 +25,8 @@ post: ## add new post
 	$(HUGO) new posts/$(POST_NAME).md
 	sed -i 's/title: .*/title: "$(POST_TITLE)"/' content/posts/$(POST_NAME).md
 
-lint: ## check and clean
-	hadolint ./build/Dockerfile && echo "OK"
+lint: ## Lint Dockerfile
+	docker run --rm -v $(PWD):/workdir -i hadolint/hadolint:v2.6.0 hadolint --config /workdir/.build/cst.yml --no-fail /workdir/.build/Dockerfile
 
 markdownlint: ## run the markdownlint tool
 	markdownlint README.md DEPLOY.md
