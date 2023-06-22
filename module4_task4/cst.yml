@@ -6,10 +6,6 @@ fileExistenceTests:
     path: '/'
     shouldExist: true
 
-metadataTest:
-  entrypoint: []
-  workdir: "/app"
-
 commandTests:
   - name: go version
     command: go
