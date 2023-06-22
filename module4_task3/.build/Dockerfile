@@ -36,7 +36,7 @@ RUN curl -sSfL -o /usr/local/bin/container-structure-test https://storage.google
     && chmod +x /usr/local/bin/container-structure-test
 
 # Set the working directory in the container
-WORKDIR /app
+WORKDIR /module4_task2
 
 # Copy everything from the current directory to the PWD (Present Working Directory) inside the container
 COPY . ..
