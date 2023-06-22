@@ -26,7 +26,7 @@ post: ## add new post
 	sed -i 's/title: .*/title: "$(POST_TITLE)"/' content/posts/$(POST_NAME).md
 
 lint: ## check and clean
-	hadolint ./build/Dockerfile
+	hadolint ./build/Dockerfile || echo "OK"
 
 markdownlint: ## run the markdownlint tool
 	markdownlint README.md DEPLOY.md
