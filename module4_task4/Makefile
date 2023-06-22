@@ -1,60 +1,68 @@
-GO=go
-TARGET=awesome-api
-RM=rm -rf
-MAKE=make
-COVERAGE=coverage
 HUGO=hugo
+RM=rm -rf
+SHELLCHECK=shellcheck
+YAMLLINT=yamllint
+YQ=yq
+MARKDOWN=markdownlint
 IMAGE_TAG=$(shell git tag | tail -n 1)
 ifeq ($(strip $(IMAGE_TAG)),)
 IMAGE_TAG=$(shell git rev-parse --abbrev-ref HEAD)
 endif
 
-build: ## Generate the source code of the application to a binary.
-	docker run --rm -v $(PWD):/app -w /app awesome:build hugo --source . --destination dist
-	docker run --rm -v $(PWD):/app -w /app awesome:build go build -o $(TARGET)
+docker-tests: ## Build the Docker image
+	container-structure-test test --image awesome:${IMAGE_TAG} --config cst.yml
 
-docker-tests: ## Test docker image awesome:build
-	docker run --rm -v $(PWD):/app -v /var/run/docker.sock:/var/run/docker.sock -w /app awesome:build container-structure-test test --image awesome:build --config .build/cst.yml
+go-build: ## Builds the API binary file using go
+	go build
 
-run: ## Run the application in background by executing the binary.
-	./$(TARGET) >./$(TARGET).log 2>&1 &
+hugo-build: ## Builds a website using gohugo on the dist folder
+	hugo
 
-post: ## Create a new blog post whose filename and title come from the environment variables POST_TITLE and POST_NAME
+build: ## Builds all that is needed for website
+	-make go-build
+	make hugo-build
+
+post: ## Creates a new post with the title changed to the ENV value.
 	$(HUGO) new posts/$(POST_NAME).md
-	sed -i '2s/.*/title: "$(POST_TITLE)"/' content/posts/$(POST_NAME).md
+	$(YQ) eval '.title = "$(POST_TITLE)"' ./content/posts/$(POST_NAME).md
 
-stop: ## Stop the application.
-	@pkill $(TARGET)
+clean: ## Remove all files from target folder
+	$(RM) dist/*
 
-clean: ## Stop the application. Delete the binary and the log file.
-	@sudo $(RM) $(TARGET) $(TARGET).log $(COVERAGE)-units.out $(COVERAGE)-integrations.out dist/ *~
+lint: ## Lints the shell file and run yamllint on success.
+	hadolint .Dockerfile
+	yamllint -c .yamllint.yml -f parsable **/*.yml
 
-test: ## Test the application.
-	$(MAKE) unit-tests
-	$(MAKE) integration-tests
-	$(MAKE) validate
+yamllint: ## Yamllint github workflow.
+	$(YAMLLINT) ./github-workflow.yml --no-warnings >/dev/null 2>&1 && echo OK
+	$(YAMLLINT) ./release_drafter.yml --no-warnings >/dev/null 2>&1 && echo OK
+	$(YQ) eval '.jobs.*.steps.[].name' ./github-workflow.yml | wc -l
+	$(YQ) eval '.jobs.*.steps.[].run' ./github-workflow.yml | grep -q 'make lint' && echo OK
+	$(YQ) eval '.jobs.*.steps.[].run' ./github-workflow.yml | grep -q 'make integration-test'
 
-unit-tests: ## make a coverage-units.out file
-	touch coverage-units.out
+markdownlint: ## Build the Docker image
+	$(MARKDOWN) README.md
+	$(MARKDOWN) DEPLOY.md
 
-integration-tests: ## make a coverage-integrations.out file
-	touch coverage-integrations.out
-
-lint: ## Lint Dockerfile
-	docker run --rm -v $(PWD):/workdir -i hadolint/hadolint:v2.6.0 hadolint --config /workdir/cst.yml --no-fail /workdir/Dockerfile
-
-check: ## Lint markdown source, check dead links
-	markdownlint ./content/posts/*.md
-	find content -name \*.md -print0 | xargs -0 -n1 markdown-link-check
-
-validate: build-docker ## Validate the file dist/index.html using the command line Holberton’s W3C Validator.
-	docker run --rm -v $(PWD):/app -w /app awesome:build sh -c "python3 ./w3c_validator.py ./dist/index.html || true"
-
-package: ## Produce awesome-website.zip containing awesome-api and dist directory
+test: ## Tests API using go test
 	-make build
+	make unit-tests
+	make integration-tests
+
+unit-tests: ## Runs different makefile recipes
+	go test -v -short -coverprofile=coverage-units.out
+
+integration-tests: ## Runs integration test using go test
+	go test -v -coverprofile=coverage-integrations.out
+
+validate: ## Tests ensure it is in correct dir
+	pwd
+
+package: ## Creates a zip archive of the dist dir api binary.
 	docker build -t awesome:${IMAGE_TAG} .
 	docker save -o awesome_image.tar awesome:${IMAGE_TAG}
-	zip -FSr awesome-website.zip awesome-api dist awesome_image.tar
+	zip awesome-website.zip awesome-api dist/ awesome_image.tar
 
-help: ## Show this help usage.
-	@sed -ne '/@sed/!s/## //p' $(MAKEFILE_LIST)
+.SILENT:
+help: ## Target check
+	cat Makefile | grep '##' | tr -d '##' | head -n -1
