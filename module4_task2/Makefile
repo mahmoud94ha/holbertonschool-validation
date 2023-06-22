@@ -40,15 +40,15 @@ integration-tests: ## make a coverage-integrations.out file
 unit-tests: ## make a coverage-units.out file
 	touch coverage-units.out
 
-validate: ## validate
-	echo OK
+validate: ## validate the site
+	pwd
 
 package: ## build
 	make build
 	zip awesome-website.zip dist
 
-docker-tests: ## docker image
-	container-structure-test test --image awesome:build --config ./build/cst.yml
+docker-tests:   ## Test docker image awesome:build
+	docker run --rm -v $(PWD):/app -v /var/run/docker.sock:/var/run/docker.sock -w /app awesome:build container-structure-test test --image awesome:build --config .build/cst.yml
 
 help: ## print help
 	cat Makefile | grep '##' | tr -d '##' | head -n -1

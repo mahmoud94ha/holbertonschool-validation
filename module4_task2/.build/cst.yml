@@ -7,10 +7,8 @@ fileExistenceTests:
     shouldExist: true
 
 metadataTest:
-  entrypoint: [/module4_task2/ls]
-  cmd: []
+  entrypoint: []
   workdir: "/module4_task2"
-  user: ""
 
 commandTests:
   - name: go version
@@ -18,9 +16,3 @@ commandTests:
     args: ["version"]
     expectedOutput: ["go version go1.15.8"]
     exitCode: 0
-
-fileContentTests:
-  - name: 'Debian Sources'
-    path: '/etc/apt/sources.list'
-    expectedContents: ['# deb http://snapshot.debian.org/archive/debian/']
-    excludedContents: ['.*gce_debian_mirror.*']

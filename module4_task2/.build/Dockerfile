@@ -1,8 +1,14 @@
-FROM golang:1.15.8-buster
+FROM golang:1.15.8-alpine
+
+# hadolint ignore=DL3018
+RUN apk update && \
+    apk add --no-cache wget && \
+    wget -O /usr/local/bin/container-structure-test \
+    https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64 && \
+    chmod +x /usr/local/bin/container-structure-test
 
 WORKDIR /module4_task2
 COPY . .
-RUN apt-get --no-install-recommends update \
-  && rm -rf /var/lib/apt/lists/*
 
-ENTRYPOINT ["/module4_task2/ls"]
+# Set the command to execute the markdownlint command
+CMD ["markdownlint", "-f", "DEPLOY.md"]
