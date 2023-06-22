@@ -1,15 +1,23 @@
+GO=go
+TARGET=awesome-api
+RM=rm -rf
+MAKE=make
+COVERAGE=coverage
 HUGO=hugo
-SHELLCHECK=shellcheck
-export PATH
+IMAGE_TAG=$(shell git tag | tail -n 1)
+ifeq ($(strip $(IMAGE_TAG)),)
+IMAGE_TAG=$(shell git rev-parse --abbrev-ref HEAD)
+endif
 
 .PHONY: build build-docker build-tools test
 
 build: ## install hugo
 	$(HUGO)
 	touch awesome-api
+	make build-docker
 
 build-docker: ## build a docker image
-	docker build -t "awesome:build" ./build --no-cache
+	docker build -t "awesome:build" --target build --no-cache .
 
 build-tools: ## install the hugo package and tools
 	sudo apt install ./hugo.deb
@@ -26,7 +34,7 @@ post: ## add new post
 	sed -i 's/title: .*/title: "$(POST_TITLE)"/' content/posts/$(POST_NAME).md
 
 lint: ## Lint Dockerfile
-	docker run --rm -v $(PWD):/workdir -i hadolint/hadolint:v2.6.0 hadolint --config /workdir/.build/cst.yml --no-fail /workdir/.build/Dockerfile
+	docker run --rm -v $(PWD):/workdir -i hadolint/hadolint:v2.6.0 hadolint --config /workdir/cst.yml --no-fail /workdir/Dockerfile
 
 markdownlint: ## run the markdownlint tool
 	markdownlint README.md DEPLOY.md
@@ -43,12 +51,14 @@ unit-tests: ## make a coverage-units.out file
 validate: ## validate the site
 	pwd
 
-package: ## build
-	make build
-	zip awesome-website.zip dist
+package:	## Produce awesome-website.zip containing awesome-api and dist directory
+	-make build
+	docker build -t awesome:${IMAGE_TAG} .
+	docker save -o awesome_image.tar awesome:${IMAGE_TAG}
+	zip -FSr awesome-website.zip awesome-api dist awesome_image.tar
 
 docker-tests:   ## Test docker image awesome:build
-	docker run --rm -v $(PWD):/app -v /var/run/docker.sock:/var/run/docker.sock -w /app awesome:build container-structure-test test --image awesome:build --config .build/cst.yml
+	docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -w /app awesome:build container-structure-test test --image awesome:build --config cst.yml
 
 help: ## print help
 	cat Makefile | grep '##' | tr -d '##' | head -n -1
