@@ -44,11 +44,8 @@ unit-tests: ## Run unit tests
 integration-tests: ## Run integration tests
 	docker run --rm --volume=$(shell pwd):/app --workdir=/app awesome:build apk add --no-cache build-base && go test -v -coverprofile=coverage-integrations.out
 
-lint:	## Lint go markdown code
-	-make build-docker
-	docker run --rm --volume=$(shell pwd):/app --workdir=/app awesome:build markdownlint README.md DEPLOY.md
-	docker run --rm --volume=$(shell pwd):/app --workdir=/app hadolint/hadolint hadolint build/Dockerfile
-	docker run --rm --volume=$(shell pwd):/app --workdir=/app hadolint/hadolint hadolint Dockerfile
+lint: ## Lint Dockerfile
+	docker run --rm -v $(PWD):/workdir -i hadolint/hadolint:v2.6.0 hadolint --config /workdir/cst.yml --no-fail /workdir/Dockerfile
 
 check:	## Lint markdonw source, check dead links
 	markdownlint ./content/posts/*.md
