@@ -1,11 +1,10 @@
-TARGET=awesome-api
-MAKE=make
-COVERAGE=coverage
-HUGO=hugo
 IMAGE_TAG=$(shell git tag | tail -n 1)
 ifeq ($(strip $(IMAGE_TAG)),)
 IMAGE_TAG=$(shell git rev-parse --abbrev-ref HEAD)
 endif
+HUGO=hugo
+SHELLCHECK=shellcheck
+export PATH
 
 .PHONY: build build-docker build-tools test
 
