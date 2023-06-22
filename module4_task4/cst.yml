@@ -1,0 +1,18 @@
+---
+schemaVersion: 2.0.0
+
+fileExistenceTests:
+  - name: 'Root'
+    path: '/'
+    shouldExist: true
+
+metadataTest:
+  entrypoint: []
+  workdir: "/app"
+
+commandTests:
+  - name: go version
+    command: go
+    args: ["version"]
+    expectedOutput: ["go version go1.15.8"]
+    exitCode: 0
