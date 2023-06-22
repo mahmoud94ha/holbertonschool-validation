@@ -1,56 +1,69 @@
+GO=go
 TARGET=awesome-api
+RM=rm -rf
+MAKE=make
+COVERAGE=coverage
+HUGO=hugo
 IMAGE_TAG=$(shell git tag | tail -n 1)
 ifeq ($(strip $(IMAGE_TAG)),)
 IMAGE_TAG=$(shell git rev-parse --abbrev-ref HEAD)
 endif
-HUGO=hugo
-SHELLCHECK=shellcheck
-export PATH
 
-.PHONY: build build-docker build-tools test
+# docker run <option>
+# --rm :tells the container to be removed after it finishes
+# $(PWD):/app current folder would be bound to the containers /app folder
+# -w work directory
 
-build: ## install hugo
-	$(HUGO)
-	touch awesome-api
-	make build-docker
+build:	## Generate the source code of the application to a binary.
+	docker run --rm -v $(PWD):/app -w /app awesome:build hugo --source . --destination dist
+	docker run --rm -v $(PWD):/app -w /app awesome:build go build -o $(TARGET)
 
-build-docker: ## build a docker image
-	docker build -t "awesome:build" --target build --no-cache .
+build-docker:	## Build docker image awesome:build
+	docker build -t awesome:build -f build/Dockerfile .
 
-build-tools: ## install the hugo package and tools
-	sudo apt install ./hugo.deb
+docker-tests:   ## Test docker image awesome:build
+	docker run --rm -v $(PWD):/app -v /var/run/docker.sock:/var/run/docker.sock -w /app awesome:build container-structure-test test --image awesome:build --config build/cst.yml
+	docker run --rm -v $(PWD):/app -v /var/run/docker.sock:/var/run/docker.sock -w /app awesome:build container-structure-test test --image awesome:${IMAGE_TAG} --config cst.yml
 
-test: ## run the clean target
-	docker run awesome:build sh -c "make clean || echo 'Lint Failed'"
-	docker run awesome:build sh -c "hugo; ls ./dist/*"
+run:	## Run the application in background by executing the binary.
+	./$(TARGET) >./$(TARGET).log 2>&1 &
 
-clean: ## rm all files
-	rm -rf ./dist*
-
-post: ## add new post
+post:	## Create a new blog post whose filename and title come from the environment variables POST_TITLE and POST_NAME
 	$(HUGO) new posts/$(POST_NAME).md
-	sed -i 's/title: .*/title: "$(POST_TITLE)"/' content/posts/$(POST_NAME).md
+	sed -i '2s/.*/title: "$(POST_TITLE)"/' content/posts/$(POST_NAME).md
 
 stop:	## Stop the application.
 	@pkill $(TARGET)
 
-lint: ## Lint Dockerfile
-	docker run --rm -v $(PWD):/workdir -i hadolint/hadolint:v2.6.0 hadolint --config /workdir/cst.yml --no-fail /workdir/Dockerfile
+clean:	## Stop the application. Delete the binary and the log file.
+	@sudo $(RM) $(TARGET) $(TARGET).log $(COVERAGE)-units.out $(COVERAGE)-integrations.out dist/ *~
 
-markdownlint: ## run the markdownlint tool
-	markdownlint README.md DEPLOY.md
+test:	## Test the application.
+	$(MAKE) unit-tests
+	$(MAKE) integration-tests
+	$(MAKE) validate
 
-shellcheck: ## shellcheck tool
-	$(SHELLCHECK) setup.sh >/dev/null 2>&1 || echo "Lint Failed"
+unit-tests: ## Run unit tests
+	docker run --rm --volume=$(shell pwd):/app --workdir=/app awesome:build apk add --no-cache build-base && go test -v -short -coverprofile=coverage-units.out
 
-integration-tests: ## make a coverage-integrations.out file
-	touch coverage-integrations.out
 
-unit-tests: ## make a coverage-units.out file
-	touch coverage-units.out
 
-validate: ## validate the site
-	pwd
+integration-tests: ## Run integration tests
+	docker run --rm --volume=$(shell pwd):/app --workdir=/app awesome:build apk add --no-cache build-base && go test -v -coverprofile=coverage-integrations.out
+
+
+lint:	## Lint go markdown code
+	-make build-docker
+	docker run --rm --volume=$(shell pwd):/app --workdir=/app awesome:build markdownlint README.md DEPLOY.md
+	docker run --rm --volume=$(shell pwd):/app --workdir=/app hadolint/hadolint hadolint build/Dockerfile
+	docker run --rm --volume=$(shell pwd):/app --workdir=/app hadolint/hadolint hadolint Dockerfile
+
+check:	## Lint markdonw source, check dead links
+	markdownlint ./content/posts/*.md
+	find content -name \*.md -print0 | xargs -0 -n1 markdown-link-check
+
+validate:	## Validate the file dist/index.html using the command line Holberton’s W3C Validator.
+	docker run awesome:build sh -c "python3 ./w3c_validator.py ./dist/index.html || true"
 
 package:	## Produce awesome-website.zip containing awesome-api and dist directory
 	-make build
@@ -58,8 +71,5 @@ package:	## Produce awesome-website.zip containing awesome-api and dist director
 	docker save -o awesome_image.tar awesome:${IMAGE_TAG}
 	zip -FSr awesome-website.zip awesome-api dist awesome_image.tar
 
-docker-tests:   ## Test docker image awesome:build
-	docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -w /app awesome:build container-structure-test test --image awesome:build --config cst.yml
-
-help: # help usage.
+help:	## Show this help usage.
 	@sed -ne '/@sed/!s/## //p' $(MAKEFILE_LIST)
