@@ -30,8 +30,8 @@ clean: ## Remove all files from target folder
 	$(RM) dist/*
 
 lint: ## Lints the shell file and run yamllint on success.
-	hadolint .Dockerfile
-	yamllint -c .yamllint.yml -f parsable **/*.yml
+	hadolint Dockerfile
+	yamllint -c cst.yml -f parsable *.yml && echo OK
 
 yamllint: ## Yamllint github workflow.
 	$(YAMLLINT) ./github-workflow.yml --no-warnings >/dev/null 2>&1 && echo OK

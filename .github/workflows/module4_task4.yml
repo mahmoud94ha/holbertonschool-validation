@@ -51,19 +51,24 @@ jobs:
             ${{ github.workflow }}/awesome-website.zip
             ${{ github.workflow }}/DEPLOY.md
           body: |
-            ## What is in the archive and how to unarchive it?
-            ## What are the commands to start and stop the application?
-            ## How to customize where the application logs are written?
-            ## How to “quickly” verify that the application is running?
-            ## Create a release with the archive triggered by a tag
+            ## zip
       - run: gh release create v1.0.1 --title "v1.0.1"
             --notes DEPLOY.md 2>/dev/null || echo "OK"
 
-      - name: heroku-deploy
-        uses: akhileshns/heroku-deploy@v3.12.12
+      - name: Deploy to Heroku
+        # Sike cant cause its paid now
+        if: |
+          github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+        uses: nwtgck/actions-netlify@v2.0
         with:
-          HEROKU_API_KEY: ${{secrets.HEROKU_API_KEY}}
-          HEROKU_APP_NAME: my-web-hugo
-          HEROKU_EMAIL: ${{secrets.HEROKU_EMAIL}}
-          usedocker: true
+          publish-dir: './${{ github.workflow }}/dist'
+          production-branch: main
+          enable-pull-request-comment: true
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
+          deploy-message: 'Deployed'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         timeout-minutes: 1
