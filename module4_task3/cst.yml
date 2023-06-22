@@ -8,7 +8,7 @@ fileExistenceTests:
 
 metadataTest:
   entrypoint: []
-  workdir: "/module4_task2"
+  workdir: "/app"
 
 commandTests:
   - name: go version
