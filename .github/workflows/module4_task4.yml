@@ -24,12 +24,14 @@ jobs:
 
       - name: Makefile
         run: |
-          make help
-          make unit-tests
-          make integration-tests
-          make build
+          curl -sSfL -o container-structure-test \
+          https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64
+          chmod +x container-structure-test
+          mkdir -p $HOME/bin
+          mv container-structure-test $HOME/bin/
+          export PATH=$PATH:$HOME/bin
           make package
-          echo ${{github.ref}}
+          make docker-tests
 
       - name: archieve ZIP file artifact only if all tests sucess
         if: ${{ success()}}
