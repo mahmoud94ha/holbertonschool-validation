@@ -9,11 +9,6 @@ ifeq ($(strip $(IMAGE_TAG)),)
 IMAGE_TAG=$(shell git rev-parse --abbrev-ref HEAD)
 endif
 
-# docker run <option>
-# --rm :tells the container to be removed after it finishes
-# $(PWD):/app current folder would be bound to the containers /app folder
-# -w work directory
-
 build:	## Generate the source code of the application to a binary.
 	docker run --rm -v $(PWD):/app -w /app awesome:build hugo --source . --destination dist
 	docker run --rm -v $(PWD):/app -w /app awesome:build go build -o $(TARGET)
@@ -46,11 +41,8 @@ test:	## Test the application.
 unit-tests: ## Run unit tests
 	docker run --rm --volume=$(shell pwd):/app --workdir=/app awesome:build apk add --no-cache build-base && go test -v -short -coverprofile=coverage-units.out
 
-
-
 integration-tests: ## Run integration tests
 	docker run --rm --volume=$(shell pwd):/app --workdir=/app awesome:build apk add --no-cache build-base && go test -v -coverprofile=coverage-integrations.out
-
 
 lint:	## Lint go markdown code
 	-make build-docker
