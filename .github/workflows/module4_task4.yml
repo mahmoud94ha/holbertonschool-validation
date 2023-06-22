@@ -55,6 +55,10 @@ jobs:
       - run: gh release create v1.0.1 --title "v1.0.1"
             --notes DEPLOY.md 2>/dev/null || echo "OK"
 
+      - name: heroku-deploy
+        uses: akhileshns/heroku-deploy@v3.12.12
+        timeout-minutes: 1
+
       - name: Deploy to Heroku
         # Sike cant cause its paid now
         if: |
