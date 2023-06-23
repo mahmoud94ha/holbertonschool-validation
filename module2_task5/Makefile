@@ -9,7 +9,7 @@ hugo-build: ## Check version of Hugo, install if not available, and build websit
 	@make check && hugo -c $(DESTDIR)
 
 go-build: ## Compile source code of the application into a binary named awesome-api
-	@go mod init github.com/mahmoud94ha/awesome-api
+	@if [ ! -f go.mod ]; then go mod init github.com/mahmoud94ha/awesome-api; fi
 	@go get github.com/gorilla/mux
 	@go build -o awesome-api
 	@make lint >/dev/null 2>&1 || exit -1
