@@ -20,3 +20,5 @@ The life-cycle of this project is the following command:
 * ```test```: test to ensure that it behaves as expected.
 
 * ```help```: print a list of all the goals
+
+* ```unit-tests```: Run files with the _test.go suffix
