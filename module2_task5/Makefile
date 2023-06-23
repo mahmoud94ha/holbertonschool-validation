@@ -8,10 +8,10 @@ help: ## Show command help
 hugo-build: ## Check version of Hugo, install if not available, and build website
 	@make check && hugo -c $(DESTDIR)
 
-go-build: ## Compile source code of the application into a binary named awesome.api
+go-build: ## Compile source code of the application into a binary named awesome-api
 	@go mod init github.com/mahmoud94ha/awesome-api
 	@go get github.com/gorilla/mux
-	@go build -o awesome.api
+	@go build -o awesome-api
 	@make lint >/dev/null 2>&1 || exit -1
 
 build: ## Execute Hugo and Golang builds
@@ -23,17 +23,17 @@ hugo-clean: ## Remove all files recursively (directories and content)
 
 go-clean: ## Stop the application and delete awesome-api and awesome.log
 	@make stop
-	@rm -rf awesome.api awesome.log coverage-units.out coverage-integrations.out
+	@rm -rf awesome-api awesome.log coverage-units.out coverage-integrations.out
 
 clean: ## Execute hugo-clean and go-clean
 	@make hugo-clean
 	@make go-clean
 
 run: ## Run the application in the background and write logs to awesome-api.log
-	@./awesome.api > ./awesome-api.log 2>&1 &
+	@./awesome-api > ./awesome-api.log 2>&1 &
 
 stop: ## Stop the application
-	@kill $$(pgrep awesome.api) 2>/dev/null || true
+	@kill $$(pgrep awesome-api) 2>/dev/null || true
 
 post: ## Create a new post with POST_NAME and POST_TITLE
 	@hugo new posts/$(POST_NAME).md
