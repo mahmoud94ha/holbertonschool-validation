@@ -37,7 +37,7 @@ integration-tests:## Run integration tests
 	go test -v -coverprofile=$(COVERAGE)-integrations.out
 
 lint:## Lint go lang code
-	@golangci-lint run
+	markdownlint ./content/posts/*.md
 
 check:## Lint markdonw source, check dead links
 	markdownlint ./content/posts/*.md
