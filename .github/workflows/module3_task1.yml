@@ -14,8 +14,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Hugo
-        run: cd module3_task1 && sudo ./setup.sh
+      - name: Set execute permissions
+        run: |
+          cd module3_task1
+          chmod +x setup.sh
+      - name: Run setup.sh
+        run: |
+          cd module3_task1
+          sudo ./setup.sh
       - name: Makefile
         run: |
           make help
