@@ -1,0 +1,43 @@
+---
+name: module3_task2
+"on":
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * *'
+jobs:
+  builds:
+    name: up-to-date installation system
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set execute permissions
+        run: |
+          cd module3_task1
+          chmod +x setup.sh
+      - name: Run setup.sh
+        run: |
+          cd module3_task1
+          sudo ./setup.sh
+      - name: Makefile
+        run: |
+          make help
+          make build
+          make lint
+          make run
+          make stop
+          make clean
+        working-directory: module3_task2
+      - name: Packing
+        run: cd module3_task2 && make package
+      - name: tests
+        run: |
+          cd module3_task2/ && make test
+      - name: archieve ZIP file artifact only if all tests sucess
+        if: ${{github.ref=='refs/heads/main'}}
+        uses: actions/upload-artifact@v3
+        with:
+          name: Saving the zip file
+          path: |
+            module3_task2/awesome-website.zip
