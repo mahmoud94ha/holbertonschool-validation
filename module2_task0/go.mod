@@ -1,4 +1,4 @@
-module github.com/mahmoud94ha/holbertonschool-validation
+module github.com/mahmoud94ha/holbertonschool-validation/awesome-api
 
 go 1.18
 
