@@ -8,4 +8,8 @@ To **RUN** the application : ```make run```
 To **STOP** the application : ```make stop```
 
 ## How to customize where the application logs are written?
-As default logs are written in ```awesome-api.log``` file. If you want change this localisation use this command : ```make run > [Path/File_name].log 2>&1```
+- As default logs are written in ```awesome-api.log``` file. If you want change this localisation use this command : ```make run > [Path/File_name].log 2>&1```
+
+
+["tag"]: # (module3_task3/DEPLOY.md)
+git clone [repository_url](https://github.com/mahmoud94ha/holbertonschool-validation)
