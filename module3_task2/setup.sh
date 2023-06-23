@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo apt-get update && sudo apt-get install -y make git
+sudo apt-get update && sudo apt-get install -y make git && sudo apt install golangci-lint
 
 #download hugo
 sudo curl -L https://github.com/gohugoio/hugo/releases/download/v0.84.0/hugo_extended_0.84.0_Linux-64bit.deb -o hugo.deb
