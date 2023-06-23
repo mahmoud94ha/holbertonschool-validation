@@ -27,6 +27,7 @@ jobs:
           make run
           make stop
           make clean
+          make lint
         working-directory: module3_task2
       - name: Packing
         run: cd module3_task2 && make package
