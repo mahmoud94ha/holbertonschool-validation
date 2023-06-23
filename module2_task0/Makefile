@@ -13,7 +13,7 @@ stop: ## Stop the application
 	@kill "$(shell pgrep awesome-api)"
 
 clean: ## Stop the application and delete awesome-api and awesome-api.log
-	@make stop
+	@kill "$(shell pgrep awesome-api)" || true
 	@rm -rf awesome-api
 
 test: ## Test to ensure expected beahaviour
