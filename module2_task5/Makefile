@@ -11,7 +11,8 @@ hugo-build: ## Check version of Hugo, install if not available, and build websit
 go-build: ## Compile source code of the application into a binary named awesome.api
 	@go mod init github.com/mahmoud94ha/awesome-api
 	@go get github.com/gorilla/mux
-	@make lint >/dev/null 2>&1 && go build -o awesome.api || exit -1
+	@go build -o awesome.api
+	@make lint >/dev/null 2>&1 || exit -1
 
 build: ## Execute Hugo and Golang builds
 	@make hugo-build
